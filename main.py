@@ -7,9 +7,14 @@ from numpy.random import seed, choice
 
 import cv2
 import patoolib
-from numpy import where, array, count_nonzero, atleast_2d
+from matplotlib import pyplot as plt
+from numpy import where, array, count_nonzero, asarray
 from pyunpack import Archive
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from tensorflow.keras.utils import to_categorical
+from skimage.filters.rank import entropy
+from skimage.morphology import disk
+
+from scaler import Scaler
 
 
 def download_and_unzip_images(target_directory):
@@ -63,21 +68,29 @@ def show_dataset(dataset, n_images_to_show_in_each_category=5):
     X, Y = dataset
     im = []
     for cat, lab in label.items():
+        plt.figure()
+        for i, c in enumerate(('b', 'g', 'r')):
+            hist = cv2.calcHist(X[Y == lab], [i], None, [256], [0, 256])
+            plt.plot(hist, color=c)
+        plt.ylabel('No. of pixels')
+        plt.xlabel('Intensity')
+        plt.title(f"Global histogram of category: '{cat.value}'")
+        plt.show()
+
         selected_images = choice(where(Y == lab)[0], n_images_to_show_in_each_category)
         concat = cv2.hconcat(X[selected_images])
         cv2.putText(concat, cat.value, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1, cv2.LINE_AA)
         im.append(concat)
+
     cv2.imshow("Five randomly selected images in each category", cv2.vconcat(im))
     cv2.waitKey(0)
 
 
 def scale_dataset(X_train, X_valid, X_test):
-    scaler = StandardScaler()
+    scaler = Scaler()
     scaler.fit(X_train)
-
-    scaler.fit_transform(X_train)
-    scaler.fit_transform(X_valid)
-    scaler.fit_transform(X_test)
+    scaler.scale(X_valid)
+    scaler.scale(X_test)
 
 
 def split_dataset(dataset, valid_split=0.2, test_split=0.1):
@@ -90,37 +103,46 @@ def split_dataset(dataset, valid_split=0.2, test_split=0.1):
     return (X_train, Y_train), (X_valid, Y_valid), (X_test, Y_test)
 
 
-def show_statistics(X, Y):
+def print_statistics(X, Y):
     print(f"Number of images: {len(X)}")
     print(f"Size of images: {X[0].shape[0]}x{X[0].shape[1]}")
     print(f"Image type: {X[0].shape[2]}-channel, {X[0].dtype}")
-    print("\nCategories:")
+    print("\nStatistics:")
+    cat_len = 20
+    stat_len = 24
+    num_len = 10
+    print(f"{'Category':{cat_len}}{'# images':>{num_len}}{'mean entropy':>{stat_len}}"
+          f"{'entropy deviation':>{stat_len}}")
     for cat, lab in label.items():
-        print(f"'{cat.value}': {count_nonzero(Y==lab)} images")
+        global_entropy = entropy(cv2.cvtColor(cv2.hconcat(X[Y == lab]), cv2.COLOR_BGR2GRAY), footprint=disk(10))
+        mean_entropy = global_entropy.mean().mean()
+        std_entropy = global_entropy.std()
+        print(f"{cat.value:{cat_len}}{count_nonzero(Y==lab):{num_len}}{mean_entropy:{stat_len}.4f}"
+              f"{std_entropy:{stat_len}.4f}")
 
 
 def encode_labels(Y):
-    return OneHotEncoder().fit_transform(atleast_2d(Y))
+    return to_categorical(Y)
 
 
 def main():
     seed(42)
 
-    input_location = "D:\\work\\OneDrive_BME\\doktori\\3_felev\\Deep_learning\\nhf\\input"
+    input_location = "E:\\work\\OneDrive_BME\\doktori\\3_felev\\Deep_learning\\nhf\\input"
     # Load the images and their respective categories from disk
     X, Y = load_data(input_location, download=False)
 
     # Show 5 random images from every category
-    show_dataset((X, Y))
+    # show_dataset((X, Y))
     # Display statistics of the data
-    show_statistics(X, Y)
+    print_statistics(X, Y)
 
     # Transform labels to one-hot encoding
     Y = encode_labels(Y)
     # Split dataset into training, validation and test sets
     training, validation, test = split_dataset((X, Y), valid_split=0.2, test_split=0.1)
     # Rescale image channels
-    scale_dataset(training, validation, test)
+    scale_dataset(training[0], validation[0], test[0])
 
 
 if __name__ == '__main__':
