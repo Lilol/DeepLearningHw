@@ -1,5 +1,5 @@
 import numpy as np
-from numpy import array, asarray
+from numpy import array, asarray, zeros, zeros_like
 
 
 class Scaler:
@@ -14,36 +14,53 @@ class Scaler:
         self.std_dev = None
 
     def fit(self, images):
-        batch_size = array(images).shape[0] if self.batch_size == "all" else self.batch_size
-        for k in range(0, array(images).shape[0], batch_size):
-            if self.standardize_per_channel:
-                for ch in range(images.shape[3]):
-                    pixels = asarray(images[k:k+batch_size, :, :, ch]).astype('float32')
-                    images[k:k + batch_size, :, :, ch] = (pixels - pixels.mean()) / pixels.std()
-            else:
-                pixels = asarray(images[k:k + batch_size, :, :, :]).astype('float32')
-                images[k:k + batch_size] = (pixels - pixels.mean()) / pixels.std()
-
         if self.batch_size == "all":
-            if self.standardize_per_channel:
-                self.mean = np.zeros((images.shape[3],))
-                self.std_dev = np.zeros((images.shape[3],))
-                for ch in range(images.shape[3]):
-                    pixels = asarray(images[:, :, :, ch]).astype('float32')
-                    self.mean[ch] = pixels.mean()
-                    self.std_dev[ch] = pixels.std()
-            else:
-                pixels = asarray(images).astype('float32')
-                self.mean = pixels.mean()
-                self.std_dev = pixels.std()
-        return images
+            self.__calc_mean__std(images)
 
-    def scale(self, images):
+        batch_size = array(images).shape[0] if self.batch_size == "all" else self.batch_size
+        output = zeros_like(images, dtype='float32')
+        for k in range(0, array(images).shape[0], batch_size):
+            output[k:k + batch_size, ...] = self.scale(images[k:k + batch_size, ...], mean=None, std_dev=None)
+
+        return output
+
+    def __calc_mean__std(self, images):
         if self.standardize_per_channel:
-            for ch in range(images.shape[3]):
-                pixels = asarray(images[:, :, :, ch]).astype('float32')
-                images[:, :, :, ch] = (pixels - self.mean) / self.std_dev
+            self.mean = images.mean(axis=tuple(range(images.ndim - 1)))
+            self.std_dev = images.std(axis=tuple(range(images.ndim - 1)))
         else:
-            pixels = asarray(images).astype('float32')
-            images = (pixels - self.mean) / self.std_dev
-        return images
+            self.mean = images.mean()
+            self.std_dev = images.std()
+
+    def __get_mean(self, images, mean):
+        if mean is None:
+            if self.standardize_per_channel:
+                return images.mean(axis=tuple(range(images.ndim-1)))
+            else:
+                return images.mean()
+        elif mean == "stored":
+            return self.mean
+        else:
+            return mean
+
+    def __get_std_dev(self, images, std_dev):
+        if std_dev is None:
+            if self.standardize_per_channel:
+                return images.std(axis=tuple(range(images.ndim-1)))
+            else:
+                return images.std()
+        elif std_dev == "stored":
+            return self.std_dev
+        else:
+            return std_dev
+
+    def scale(self, images, mean="stored", std_dev="stored"):
+        mean = self.__get_mean(images, mean)
+        std_dev = self.__get_std_dev(images, std_dev)
+        output = zeros_like(images, dtype='float32')
+        if self.standardize_per_channel:
+            for ch in range(images.shape[-1]):
+                output[..., ch] = (images[..., ch] - mean[ch]) / std_dev[ch]
+        else:
+            output = (images - mean) / std_dev
+        return output

@@ -3,7 +3,7 @@ from enum import Enum
 from os import remove, listdir
 from os.path import join
 from shutil import copytree
-from numpy.random import seed, choice
+from numpy.random import seed, choice, permutation
 
 import cv2
 import patoolib
@@ -88,9 +88,10 @@ def show_dataset(dataset, n_images_to_show_in_each_category=5):
 
 def scale_dataset(X_train, X_valid, X_test):
     scaler = Scaler()
-    scaler.fit(X_train)
-    scaler.scale(X_valid)
-    scaler.scale(X_test)
+    X_train = scaler.fit(X_train)
+    X_valid = scaler.scale(X_valid)
+    X_test = scaler.scale(X_test)
+    return X_train, X_valid, X_test
 
 
 def split_dataset(dataset, valid_split=0.2, test_split=0.1):
@@ -103,46 +104,85 @@ def split_dataset(dataset, valid_split=0.2, test_split=0.1):
     return (X_train, Y_train), (X_valid, Y_valid), (X_test, Y_test)
 
 
-def print_statistics(X, Y):
+def print_basic_infos(X):
     print(f"Number of images: {len(X)}")
     print(f"Size of images: {X[0].shape[0]}x{X[0].shape[1]}")
     print(f"Image type: {X[0].shape[2]}-channel, {X[0].dtype}")
-    print("\nStatistics:")
+
+
+def print_statistics(X, Y, name_of_dataset="dataset"):
+    print(f"\nStatistics of {name_of_dataset}'")
     cat_len = 20
     stat_len = 24
     num_len = 10
-    print(f"{'Category':{cat_len}}{'# images':>{num_len}}{'mean entropy':>{stat_len}}"
+    print(f"{'Category':{cat_len}}{'#images':>{num_len}}{'mean':>{stat_len}}{'std_dev':>{stat_len}}{'mean entropy':>{stat_len}}"
           f"{'entropy deviation':>{stat_len}}")
+    entropies = {}
+    entopy_error = []
     for cat, lab in label.items():
-        global_entropy = entropy(cv2.cvtColor(cv2.hconcat(X[Y == lab]), cv2.COLOR_BGR2GRAY), footprint=disk(10))
+        images_of_category = X[Y == lab]
+        global_entropy = entropy(cv2.cvtColor(cv2.hconcat(images_of_category), cv2.COLOR_BGR2GRAY), footprint=disk(10))
         mean_entropy = global_entropy.mean().mean()
         std_entropy = global_entropy.std()
-        print(f"{cat.value:{cat_len}}{count_nonzero(Y==lab):{num_len}}{mean_entropy:{stat_len}.4f}"
+        entropies[cat.value] = mean_entropy
+        entopy_error.append(std_entropy)
+        mean = images_of_category.mean()
+        std = images_of_category.std()
+        print(f"{cat.value:{cat_len}}{count_nonzero(Y==lab):{num_len}}{mean:{stat_len}.4f}{std:{stat_len}.4f}{mean_entropy:{stat_len}.4f}"
               f"{std_entropy:{stat_len}.4f}")
+
+    return entropies, entopy_error
+
+
+def plot_entropy(entropies, entropy_error):
+    fig = plt.figure(figsize=(10, 5))
+    # creating the bar plot
+    plt.barh(list(entropies.keys()), list(entropies.values()), color='maroon', xerr=entropy_error)
+    plt.ylabel("Categories")
+    plt.xlabel("Global entropy")
+    plt.title("Entropy of categories")
+    plt.show()
 
 
 def encode_labels(Y):
     return to_categorical(Y)
 
 
+def randomize_input(X, Y):
+    assert len(X) == len(Y)
+    p = permutation(len(Y))
+    return X[p], Y[p]
+
+
 def main():
     seed(42)
+    display_stats = True
 
     input_location = "E:\\work\\OneDrive_BME\\doktori\\3_felev\\Deep_learning\\nhf\\input"
     # Load the images and their respective categories from disk
     X, Y = load_data(input_location, download=False)
 
-    # Show 5 random images from every category
-    # show_dataset((X, Y))
-    # Display statistics of the data
-    print_statistics(X, Y)
+    if display_stats:
+        # Show 5 random images from every category
+        show_dataset((X, Y))
+        # Display global data of the images
+        print_basic_infos(X)
+        # Display statistics of the data
+        entropies, entropy_std = print_statistics(X, Y)
+        # Plot the entorpy for the categories
+        plot_entropy(entropies, entropy_std)
 
+    # Randomize data
+    X, Y = randomize_input(X, Y)
     # Transform labels to one-hot encoding
     Y = encode_labels(Y)
     # Split dataset into training, validation and test sets
-    training, validation, test = split_dataset((X, Y), valid_split=0.2, test_split=0.1)
+    (X_train, Y_train), (X_valid, Y_valid), (X_test, Y_test) = split_dataset((X, Y), valid_split=0.2, test_split=0.1)
     # Rescale image channels
-    scale_dataset(training[0], validation[0], test[0])
+    X_train, X_valid, X_test = scale_dataset(X_train, X_valid, X_test)
+
+    # Print statistics again, to check if mean and std-dev changed
+    print_statistics(X_train, Y_train)
 
 
 if __name__ == '__main__':
