@@ -8,7 +8,7 @@ Convolutional Neural Network (CNN) vs Vision Transformer (ViT) for Cloud Image C
 
 name: Obscure Intelligence
 
-* Barancsuk Lilla -
+* Barancsuk Lilla - BMMMRS
 * Kássa Kristóf - HGNB1P
 
 ## Abstract
