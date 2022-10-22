@@ -11,7 +11,7 @@ from visualization import show_dataset, print_basic_infos, plot_statistics, plot
 
 seed(42)
 display_stats = True
-input_location = "E:\\work\\OneDrive_BME\\doktori\\3_felev\\Deep_learning\\nhf\\input"
+input_location = "C:\\input"
 
 
 def main():
