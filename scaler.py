@@ -1,12 +1,13 @@
-import numpy as np
-from numpy import array, asarray, zeros, zeros_like
+from numpy import array, zeros_like
 
 
 class Scaler:
+    """Responsible for standardizing an image dataset
+    """
     def __init__(self, batch_size="all", per_channel=False):
         """
         :param batch_size: Number of images to standardize across
-        :param per_channel: Compute standardization over number of images
+        :param per_channel: If true, standardizes over each channel separately
         """
         self.batch_size = batch_size
         self.standardize_per_channel = per_channel
