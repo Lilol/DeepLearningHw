@@ -17,11 +17,24 @@ Convolution Neural Network (CNN) algorithms have been prominent models for image
 
 ## Documentation
 main.py
-* Cloud image dataset download script.
+* Cloud image dataset download  and preprocess script.
+
+definitions.py
+* Basic category-definitions
+
+load_data.py
+* Download script
+
+visualization.py
+* Visualization of the data
+
+preprocessing.py
 * Data preparation for learning to create teaching, validation and test inputs and outputs.
 
 scaler.py
 * Dataset standardization.
+
+
 
 ## Milestone 1
 Open Milestone 1 in Google Colab [here](https://colab.research.google.com/drive/1vHV0-Xz2UidxxIGeMmjiosJxLtjpEcYt?usp=sharing).
