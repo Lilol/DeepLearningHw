@@ -34,7 +34,8 @@ preprocessing.py
 scaler.py
 * Dataset standardization.
 
-
+CNN_vs_ViT.ipybn
+* Model building and evaluation in Google Colab
 
 ## Milestone 1
 Open Milestone 1 in Google Colab [here](https://colab.research.google.com/drive/1vHV0-Xz2UidxxIGeMmjiosJxLtjpEcYt?usp=sharing).
