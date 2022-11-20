@@ -46,11 +46,15 @@ Open the transformer code in Google Colab [here](https://colab.research.google.c
 
 For file preprocessing, run cells under the section "1.) Data preprocessing" in the notebook.
 
-For training the network, run cells the section "2.) Training ViT model" in the notebook.
+For training the network, run cells under the section "2.) Training ViT model" in the notebook.
+
+For model evaluation, run cells under the section "3.) Evaluating ViT model" in the notebook.
 
 ### CNN architecture
 Open the CNN code in the same Google Colab [here](https://colab.research.google.com/drive/1Gv5sAK2P29KVJ2PEPVUgDEtFI54jpiKj?usp=sharing).
 
 For file preprocessing, run cells under the section "1.) Data preprocessing" in the notebook.
 
-For training the cnn network, run cells the section "3.) Training CNN model".
+For training the cnn network, run cells the section "4.) Training CNN model".
+
+For evaluating the cnn network, run cells the section "5.) Evaluating CNN model".
