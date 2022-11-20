@@ -38,3 +38,15 @@ scaler.py
 
 ## Milestone 1
 Open Milestone 1 in Google Colab [here](https://colab.research.google.com/drive/1vHV0-Xz2UidxxIGeMmjiosJxLtjpEcYt?usp=sharing).
+
+
+## Milestone 2
+### Transfomer achitecture
+Open the transformer code in Google Colab [here](https://colab.research.google.com/drive/1Gv5sAK2P29KVJ2PEPVUgDEtFI54jpiKj?usp=sharing).
+
+For file preprocessing, run cells under the section "1.) Data preprocessing" in the notebook.
+
+For training the network, run cells the section "2.) Training the model" in the notebook.
+
+### CNN architecture
+Open the CNN code in Google Colab [here]().
