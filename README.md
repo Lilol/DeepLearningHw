@@ -37,6 +37,18 @@ scaler.py
 CNN_vs_ViT.ipybn
 * Model building and evaluation in Google Colab
 
+CNN_vs_ViT_model_comparison.ipybn
+* Build and evalutate ViT and CNN models with various hyperparameters in Google Colab.
+
+/documentation
+* CNN_vs_ViT.tex: LaTex source code of the documentation
+* CNN_vs_ViT.pdf: Documentation PDF
+* bibliography.bib: Bibliography file containing the cited references
+* nips_2016.sty: NIPS 2016 LaTex style file
+
+test_set.zip
+* Independent test set for evaluating the models
+
 ## Milestone 1
 Open Milestone 1 in Google Colab [here](https://colab.research.google.com/drive/1vHV0-Xz2UidxxIGeMmjiosJxLtjpEcYt?usp=sharing).
 
@@ -59,3 +71,8 @@ For file preprocessing, run cells under the section "1.) Data preprocessing" in 
 For training the cnn network, run cells the section "4.) Training CNN model".
 
 For evaluating the cnn network, run cells the section "5.) Evaluating CNN model".
+
+
+## Milestone 3
+Define, evaluate and compare CNN and ViT models with various hyperparameter sets.
+Open the comparison of the various models in Google Colab [here](https://colab.research.google.com/gist/Lilol/f9fb7df71ac29e1e0786178c287d4150/cnn_vs_vit_model_comparison.ipynb).
