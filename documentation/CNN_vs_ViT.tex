@@ -23,6 +23,7 @@
 \usepackage{multirow}
 \usepackage{graphicx}
 \usepackage{siunitx}
+\usepackage{placeins}
 
 \bibliographystyle{plainnat}
 \setcitestyle{numbers,square}
@@ -189,6 +190,8 @@ On the test set, high augmentation models strongly outperform low augmentation o
 This group work proved the applicability and effectiveness of Transformer for image classification tasks. We compared CNN and ViT models with our cloud image dataset. Meanwhile, we have applied different levels of data augmentation to improve model accuracy and used K-fold cross validation to compensate the size of our dataset and to compare the performance of models at scale. 
 
 However, this study still has some limitations. As indicated, the training time for the ViT model is extremely long compared to the CNN models. Therefore, to implement in real-life applications its efficiency must be improved, which needs to be investigated. This work also only studies one type of dataset with limited number of CNN and Transformer models. Other CNN models such as VGGs and Inception-ResNets could be further studied to compare the performance between CNN and ViT models. 
+
+\FloatBarrier
 
 \bibliography{bibliography}
 	
